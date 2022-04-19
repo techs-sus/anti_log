@@ -1,0 +1,29 @@
+{
+  "name": "anti_log",
+  "version": "1.0.0",
+  "description": "Prevents you from being logged by tusk/anyone",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/techs-sus/anti_log.git"
+  },
+  "author": "techs-sus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/techs-sus/anti_log/issues"
+  },
+  "homepage": "https://github.com/techs-sus/anti_log#readme",
+  "dependencies": {
+    "@types/vorpal": "^1.12.2",
+    "cash": "^0.8.0",
+    "chalk": "^5.0.1",
+    "clipboardy": "^3.0.0",
+    "conf": "^10.1.2",
+    "express": "^4.17.3",
+    "localtunnel": "^2.0.2",
+    "vorpal": "^1.12.0"
+  }
+}
