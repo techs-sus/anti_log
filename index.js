@@ -52,10 +52,12 @@
 			if (typeof tun !== "undefined") {
 				tun.close();
 				vorpal.log("Closed tunnel.");
+                                tun = undefined;
 			}
 			if (typeof _app !== "undefined") {
 				_app.close();
 				vorpal.log("Closed express server.");
+                                _app = undefined;
 			}
 			c();
 		});
@@ -63,7 +65,7 @@
 	vorpal
 		.command("serve <file>", "Serves <file> with protection.")
 		.action(async (args, c) => {
-			if (typeof app !== "undefined") {
+			if (typeof _app !== "undefined") {
 				vorpal.log("Please run stop.");
 				return c();
 			}
@@ -74,17 +76,17 @@
 				res.send(read);
 				setTimeout(async () => {
 					if (typeof tun !== "undefined") tun.close();
-					tun = await tunnel(3000);
+					tun = await tunnel(3002);
 					writeURLToClipboard();
 				}, 200);
 			});
-			_app = app.listen(3000, async () => {
-				tun = await tunnel(3000);
+			_app = app.listen(3002, async () => {
+				tun = await tunnel(3002);
 				vorpal.log("Tunnel ready!");
 				c();
 				writeURLToClipboard();
 			});
 		});
 
-	vorpal.delimiter(`${chalk.rgb(255, 0, 100)("tun>")}`).show();
+	vorpal.delimiter(`${chalk.magenta("tun>")}`).show();
 })();
