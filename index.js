@@ -88,5 +88,5 @@
 			});
 		});
 
-	vorpal.delimiter(`${chalk.magenta("tun>")}`).show();
+	vorpal.delimiter(chalk.magenta("tun>")).show();
 })();
