@@ -52,12 +52,12 @@
 			if (typeof tun !== "undefined") {
 				tun.close();
 				vorpal.log("Closed tunnel.");
-                                tun = undefined;
+				tun = undefined;
 			}
 			if (typeof _app !== "undefined") {
 				_app.close();
 				vorpal.log("Closed express server.");
-                                _app = undefined;
+				_app = undefined;
 			}
 			c();
 		});
