@@ -73,7 +73,7 @@
 			const read = (await fs.readFile(path.join(__dirname, file))).toString();
 			app = express();
 			app.get("/", async (req, res) => {
-				res.send(read);
+				res.status(200).send(read);
 				setTimeout(async () => {
 					if (typeof tun !== "undefined") tun.close();
 					tun = await tunnel(3002);
