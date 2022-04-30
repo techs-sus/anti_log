@@ -9,7 +9,11 @@
 	const fs = require("fs/promises");
 	const tunnel = require("localtunnel");
 	const Conf = require("conf");
+	const os = require("os");
 	const config = new Conf();
+	const homeDir = os.userInfo().homeDir;
+	const cwd = process.cwd() + "/";
+	const { v4: uuidv4 } = require("uuid");
 	let app;
 	let _app;
 	let tun;
@@ -69,19 +73,19 @@
 				vorpal.log("Please run stop.");
 				return c();
 			}
-			const file = args.file;
-			const read = (await fs.readFile(path.join(__dirname, file))).toString();
+			const file = args.file.replace("~", homeDir).replace("./", cwd);
 			app = express();
 			app.get("/", async (req, res) => {
+				const read = (await fs.readFile(file)).toString();
 				res.status(200).send(read);
 				setTimeout(async () => {
 					if (typeof tun !== "undefined") tun.close();
-					tun = await tunnel(3002);
+					tun = await tunnel({ subdomain: uuidv4(), port: 3002 });
 					writeURLToClipboard();
 				}, 200);
 			});
 			_app = app.listen(3002, async () => {
-				tun = await tunnel(3002);
+				tun = await tunnel({ subdomain: uuidv4(), port: 3002 });
 				vorpal.log("Tunnel ready!");
 				c();
 				writeURLToClipboard();
