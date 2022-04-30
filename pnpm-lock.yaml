@@ -8,6 +8,7 @@ specifiers:
   conf: ^10.1.2
   express: ^4.17.3
   localtunnel: ^2.0.2
+  uuid: ^8.3.2
   vorpal: ^1.12.0
 
 dependencies:
@@ -18,6 +19,7 @@ dependencies:
   conf: 10.1.2
   express: 4.17.3
   localtunnel: 2.0.2
+  uuid: 8.3.2
   vorpal: 1.12.0
 
 packages:
@@ -1433,6 +1435,11 @@ packages:
   /utils-merge/1.0.1:
     resolution: {integrity: sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=}
     engines: {node: '>= 0.4.0'}
+    dev: false
+
+  /uuid/8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
     dev: false
 
   /validate-npm-package-license/3.0.4:
