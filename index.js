@@ -5,7 +5,6 @@
 	const chalk = new _c.Chalk();
 	const vorpal = require("vorpal")();
 	const express = require("express");
-	const path = require("path");
 	const fs = require("fs/promises");
 	const tunnel = require("localtunnel");
 	const Conf = require("conf");
