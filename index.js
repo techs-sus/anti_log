@@ -18,7 +18,7 @@
 	let tun;
 	async function writeURLToClipboard() {
 		if (config.get("auto_copy")) {
-			await clipboard.write(tun.url);
+			await clipboard.write('h/'+tun.url);
 		}
 	}
 	vorpal.command("clear", "Clears terminal.").action((args, c) => {
@@ -42,7 +42,7 @@
 		.command("copy", "Copys the tun.url to your clipboard. (clipboardy)")
 		.action(async (_, c) => {
 			if (typeof tun !== "undefined") {
-				await clipboard.write(tun.url);
+				await clipboard.write("h/"+tun.url);
 				vorpal.log(tun.url);
 			} else {
 				vorpal.log("You must serve a file first.");
