@@ -9,7 +9,9 @@ import os from "os";
 import { v4 } from "uuid";
 import _vorpal from "vorpal";
 const vorpal: any = new _vorpal();
-const config = new Conf();
+const config = new Conf({
+	projectName: "anti_log",
+});
 const homeDir = os.userInfo().homedir;
 const cwd = process.cwd() + "/";
 let app;
@@ -69,12 +71,12 @@ vorpal
 		app = express();
 		app!.get("/", async (req, res) => {
 			const read = (await fs.readFile(file)).toString();
-			res.status(200).send(read);
+			setTimeout(() => res.status(200).send(read), 3000);
 			setTimeout(async () => {
 				if (typeof tun !== "undefined") tun.close();
 				tun = await tunnel({ subdomain: v4(), port: 3002 });
 				writeURLToClipboard();
-			}, 200);
+			}, 3200);
 		});
 		_app = app!.listen(3002, async () => {
 			tun = await tunnel({ subdomain: v4(), port: 3002 });
