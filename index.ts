@@ -71,12 +71,12 @@ vorpal
 		app = express();
 		app!.get("/", async (req, res) => {
 			const read = (await fs.readFile(file)).toString();
-			setTimeout(() => res.status(200).send(read), 3000);
+			res.status(200).send(read)
 			setTimeout(async () => {
 				if (typeof tun !== "undefined") tun.close();
 				tun = await tunnel({ subdomain: v4(), port: 3002 });
 				writeURLToClipboard();
-			}, 3200);
+			}, 200);
 		});
 		_app = app!.listen(3002, async () => {
 			tun = await tunnel({ subdomain: v4(), port: 3002 });
