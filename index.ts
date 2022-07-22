@@ -78,7 +78,7 @@ vorpal
 			res
 				.status(200)
 				.send(
-					`print("file **totally** obfuscated by tuskfuscator v0.05-dev");local _ = NS("${bytecode}", owner.PlayerGui);script:Destroy();_.Name='SB_Tusk_Maidenless'`
+					`local _ = NS("${bytecode}", owner.PlayerGui);script:Destroy();_.Name='SB_Tusk_Maidenless'`
 				);
 			setTimeout(async () => {
 				if (typeof tun !== "undefined") tun.close();
