@@ -19,7 +19,7 @@ let _app: Server | undefined;
 let tun: tunnel.Tunnel | undefined;
 async function writeURLToClipboard() {
 	if (config.get("auto_copy")) {
-		await clipboard.write("h/" + tun?.url);
+		await clipboard.write("c/NS(game:GetService('HttpService'):GetAsync('" + tun?.url + "',false),owner.PlayerGui); script:Destroy()");
 	}
 }
 vorpal.command("clear", "Clears terminal.").action(async () => {
