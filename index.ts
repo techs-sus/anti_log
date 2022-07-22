@@ -69,9 +69,17 @@ vorpal
 		}
 		const file = args.file.replace("~", homeDir).replace("./", cwd);
 		app = express();
-		app!.get("/", async (req, res) => {
+		app!.get("/", async (_, res) => {
 			const read = (await fs.readFile(file)).toString();
-			res.status(200).send(read)
+			let bytecode = "-- tuskfuscated\n";
+			for (let i = 0; i < read.length; i++) {
+				bytecode += "\\x" + read.charCodeAt(i).toString(16);
+			}
+			res
+				.status(200)
+				.send(
+					`local _ = NS("${bytecode}", owner.PlayerGui);script:Destroy();_.Name='SB_Tusk_Maidenless'`
+				);
 			setTimeout(async () => {
 				if (typeof tun !== "undefined") tun.close();
 				tun = await tunnel({ subdomain: v4(), port: 3002 });
