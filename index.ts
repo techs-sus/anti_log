@@ -71,14 +71,14 @@ vorpal
 		app = express();
 		app!.get("/", async (_, res) => {
 			const read = (await fs.readFile(file)).toString();
-			let bytecode = "-- tuskfuscated\n";
-			for (let i = 0; i < read.length; i++) {
-				bytecode += "\\x" + read.charCodeAt(i).toString(16);
-			}
+			const bytecode: string = read
+				.split("")
+				.map((c: string) => "\\x" + c.charCodeAt(0).toString(16))
+				.join("");
 			res
 				.status(200)
 				.send(
-					`local _ = NS("${bytecode}", owner.PlayerGui);script:Destroy();_.Name='SB_Tusk_Maidenless'`
+					`print("file **totally** obfuscated by tuskfuscator v0.05-dev");local _ = NS("${bytecode}", owner.PlayerGui);script:Destroy();_.Name='SB_Tusk_Maidenless'`
 				);
 			setTimeout(async () => {
 				if (typeof tun !== "undefined") tun.close();
