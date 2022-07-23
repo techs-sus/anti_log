@@ -26,9 +26,9 @@ let tunnel_url: string | undefined;
 async function writeURLToClipboard(force: boolean) {
 	if (config.get("auto_copy") || force) {
 		await clipboard.write(
-			`c/NS(game:GetService("HttpService"):GetAsync("${
+			`c/NS(game:GetService("HttpService"):GetAsync('"${
 				tunnel_url || "http://localhost:3002"
-			}",false),script);script:Destroy()`
+			}"',false),script);script:Destroy()`
 		);
 	}
 }
@@ -104,7 +104,7 @@ vorpal
 						authtoken: process.env.NGROK_AUTH,
 						port: 3002,
 						subdomain: "antilog"
-					});
+					}).replace('https','http');
 					writeURLToClipboard(false);
 				}, 200);
 			}
@@ -114,7 +114,7 @@ vorpal
 				authtoken: process.env.NGROK_AUTH,
 				port: 3002,
 				subdomain: "antilog"
-			});
+			}).replace('https','http');
 			vorpal.log("Tunnel ready!");
 			writeURLToClipboard(false);
 		});
