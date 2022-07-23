@@ -22,13 +22,12 @@
 		"chalk": "^5.0.1",
 		"clipboardy": "^3.0.0",
 		"conf": "^10.1.2",
+		"dotenv": "^16.0.1",
 		"express": "^4.18.1",
 		"gulp-terser": "^2.1.0",
 		"gulp-typescript": "^6.0.0-alpha.1",
 		"gulp-uglify": "^3.0.2",
-		"localtunnel": "^2.0.2",
 		"ngrok": "^4.3.1",
-		"uuid": "^8.3.2",
 		"vorpal": "^1.12.0"
 	},
 	"devDependencies": {
