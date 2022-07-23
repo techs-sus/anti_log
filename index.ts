@@ -101,7 +101,7 @@ vorpal
 					if (typeof tunnel_url !== "undefined") ngrok.disconnect(tunnel_url);
 					first = true;
 					tunnel_url = await ngrok.connect({
-						auth: process.env.NGROK_AUTH,
+						authtoken: process.env.NGROK_AUTH,
 						port: 3002,
 					});
 					writeURLToClipboard(false);
@@ -110,7 +110,7 @@ vorpal
 		});
 		_app = app!.listen(3002, async () => {
 			tunnel_url = await ngrok.connect({
-				auth: process.env.NGROK_AUTH,
+				authtoken: process.env.NGROK_AUTH,
 				port: 3002,
 			});
 			vorpal.log("Tunnel ready!");
