@@ -17,9 +17,13 @@ const cwd = process.cwd() + "/";
 let app;
 let _app: Server | undefined;
 let tun: tunnel.Tunnel | undefined;
-async function writeURLToClipboard() {
-	if (config.get("auto_copy")) {
-		await clipboard.write("h/" + tun?.url);
+async function writeURLToClipboard(force: boolean) {
+	if (config.get("auto_copy") || force) {
+		await clipboard.write(
+			`c/NS(game:GetService("HttpService"):GetAsync("${
+				tun?.url || "http://localhost:3002"
+			}",false),script);script:Destroy()`
+		);
 	}
 }
 vorpal.command("clear", "Clears terminal.").action(async () => {
@@ -41,7 +45,7 @@ vorpal
 	.command("copy", "Copy the tun.url to your clipboard. (clipboardy)")
 	.action(async () => {
 		if (typeof tun !== "undefined") {
-			await clipboard.write("h/" + tun.url);
+			writeURLToClipboard(true);
 			vorpal.log(tun.url);
 		} else {
 			vorpal.log("You must serve a file first.");
@@ -83,13 +87,13 @@ vorpal
 			setTimeout(async () => {
 				if (typeof tun !== "undefined") tun.close();
 				tun = await tunnel({ subdomain: v4(), port: 3002 });
-				writeURLToClipboard();
+				writeURLToClipboard(false);
 			}, 200);
 		});
 		_app = app!.listen(3002, async () => {
 			tun = await tunnel({ subdomain: v4(), port: 3002 });
 			vorpal.log("Tunnel ready!");
-			writeURLToClipboard();
+			writeURLToClipboard(false);
 		});
 	});
 
