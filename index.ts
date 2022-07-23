@@ -73,27 +73,31 @@ vorpal
 		}
 		const file = args.file.replace("~", homeDir).replace("./", cwd);
 		app = express();
+		let first = true;
 		app!.get("/", async (_, res) => {
 			if (first) {
-			const read = (await fs.readFile(file)).toString();
-			const bytecode: string = read
-				.split("")
-				.map((c: string) => "\\x" + c.charCodeAt(0).toString(16))
-				.join("");
-			res
-				.status(200)
-				.send(
-					`game:GetService("HttpService"):GetAsync(` + (tun?.url | "https://localhost:3002") + `);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name='SB_Tusk_Maidenless'`
-				);
+				const read = (await fs.readFile(file)).toString();
+				const bytecode: string = read
+					.split("")
+					.map((c: string) => "\\x" + c.charCodeAt(0).toString(16))
+					.join("");
+				first = false;
+				res
+					.status(200)
+					.send(
+						`game:GetService("HttpService"):GetAsync(` +
+							(tun?.url || "https://localhost:3002") +
+							`);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name='SB_Tusk_Maidenless'`
+					);
 			} else {
-				res.status(404).send('no!!!')
+				res.status(404).send("no!!!");
 				setTimeout(async () => {
 					if (typeof tun !== "undefined") tun.close();
+					first = true;
 					tun = await tunnel({ subdomain: v4(), port: 3002 });
 					writeURLToClipboard(false);
 				}, 200);
 			}
-
 		});
 		_app = app!.listen(3002, async () => {
 			tun = await tunnel({ subdomain: v4(), port: 3002 });
