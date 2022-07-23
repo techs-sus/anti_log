@@ -8,7 +8,7 @@ import ngrok from "ngrok";
 import os from "os";
 import _vorpal from "vorpal";
 import process from "process";
-require('dotenv').config();
+import denv from "dotenv"; denv.config();
 if (process.env.NGROK_AUTH == undefined) {
 	console.log('No ngrok auth key!')
 	process.exit(1);
