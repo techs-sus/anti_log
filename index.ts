@@ -4,10 +4,15 @@ import Conf from "conf";
 import express from "express";
 import fs from "fs/promises";
 import { Server } from "http";
-import tunnel from "localtunnel";
+import ngrok from "ngrok";
 import os from "os";
-import { v4 } from "uuid";
 import _vorpal from "vorpal";
+import process from "process";
+require('dotenv').config();
+if (process.env.NGROK_AUTH == undefined) {
+	console.log('No ngrok auth key!')
+	process.exit(1);
+}
 const vorpal: any = new _vorpal();
 const config = new Conf({
 	projectName: "anti_log",
@@ -16,12 +21,12 @@ const homeDir = os.userInfo().homedir;
 const cwd = process.cwd() + "/";
 let app;
 let _app: Server | undefined;
-let tun: tunnel.Tunnel | undefined;
+let tunnel_url: string | undefined;
 async function writeURLToClipboard(force: boolean) {
 	if (config.get("auto_copy") || force) {
 		await clipboard.write(
 			`c/NS(game:GetService("HttpService"):GetAsync("${
-				tun?.url || "http://localhost:3002"
+				tunnel_url || "http://localhost:3002"
 			}",false),script);script:Destroy()`
 		);
 	}
@@ -44,18 +49,18 @@ vorpal
 vorpal
 	.command("copy", "Copy the tun.url to your clipboard. (clipboardy)")
 	.action(async () => {
-		if (typeof tun !== "undefined") {
+		if (typeof tunnel_url !== "undefined") {
 			writeURLToClipboard(true);
-			vorpal.log(tun.url);
+			vorpal.log(tunnel_url);
 		} else {
 			vorpal.log("You must serve a file first.");
 		}
 	});
 vorpal.command("stop", "Stop serving the file.").action(async () => {
-	if (typeof tun !== "undefined") {
-		tun.close();
+	if (typeof tunnel_url !== "undefined") {
+		ngrok.disconnect(tunnel_url);
 		vorpal.log("Closed tunnel.");
-		tun = undefined;
+		tunnel_url = undefined;
 	}
 	if (typeof _app !== "undefined") {
 		_app.close();
@@ -86,21 +91,21 @@ vorpal
 					.status(200)
 					.send(
 						`game:GetService("HttpService"):GetAsync(` +
-							(tun?.url || "https://localhost:3002") +
+							(tunnel_url || "https://localhost:3002") +
 							`);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name='SB_Tusk_Maidenless'`
 					);
 			} else {
 				res.status(404).send("no!!!");
 				setTimeout(async () => {
-					if (typeof tun !== "undefined") tun.close();
+					if (typeof tunnel_url !== "undefined") ngrok.disconnect(tunnel_url);
 					first = true;
-					tun = await tunnel({ subdomain: v4(), port: 3002 });
+					tunnel_url = await ngrok.connect({ auth: process.env.NGROK_AUTH, port: 3002 });
 					writeURLToClipboard(false);
 				}, 200);
 			}
 		});
 		_app = app!.listen(3002, async () => {
-			tun = await tunnel({ subdomain: v4(), port: 3002 });
+			tunnel_url = await ngrok.connect({ auth: process.env.NGROK_AUTH, port: 3002 });
 			vorpal.log("Tunnel ready!");
 			writeURLToClipboard(false);
 		});
