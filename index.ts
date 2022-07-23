@@ -74,6 +74,7 @@ vorpal
 		const file = args.file.replace("~", homeDir).replace("./", cwd);
 		app = express();
 		app!.get("/", async (_, res) => {
+			if (first) {
 			const read = (await fs.readFile(file)).toString();
 			const bytecode: string = read
 				.split("")
@@ -82,13 +83,17 @@ vorpal
 			res
 				.status(200)
 				.send(
-					`local _ = NS("${bytecode}", owner.PlayerGui);script:Destroy();_.Name='SB_Tusk_Maidenless'`
+					`game:GetService("HttpService"):GetAsync(` + (tun?.url | "https://localhost:3002") + `);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name='SB_Tusk_Maidenless'`
 				);
-			setTimeout(async () => {
-				if (typeof tun !== "undefined") tun.close();
-				tun = await tunnel({ subdomain: v4(), port: 3002 });
-				writeURLToClipboard(false);
-			}, 200);
+			} else {
+				res.status(404).send('no!!!')
+				setTimeout(async () => {
+					if (typeof tun !== "undefined") tun.close();
+					tun = await tunnel({ subdomain: v4(), port: 3002 });
+					writeURLToClipboard(false);
+				}, 200);
+			}
+
 		});
 		_app = app!.listen(3002, async () => {
 			tun = await tunnel({ subdomain: v4(), port: 3002 });
