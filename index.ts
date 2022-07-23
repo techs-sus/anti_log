@@ -100,21 +100,25 @@ vorpal
 				setTimeout(async () => {
 					if (typeof tunnel_url !== "undefined") ngrok.disconnect(tunnel_url);
 					first = true;
-					tunnel_url = await ngrok.connect({
-						authtoken: process.env.NGROK_AUTH,
-						port: 3002,
-						subdomain: "antilog"
-					}).replace('https','http');
+					tunnel_url = (
+						await ngrok.connect({
+							authtoken: process.env.NGROK_AUTH,
+							port: 3002,
+							subdomain: "antilog",
+						})
+					).replace("https", "http");
 					writeURLToClipboard(false);
 				}, 200);
 			}
 		});
 		_app = app!.listen(3002, async () => {
-			tunnel_url = await ngrok.connect({
-				authtoken: process.env.NGROK_AUTH,
-				port: 3002,
-				subdomain: "antilog"
-			}).replace('https','http');
+			tunnel_url = (
+				await ngrok.connect({
+					authtoken: process.env.NGROK_AUTH,
+					port: 3002,
+					subdomain: "antilog",
+				})
+			).replace("https", "http");
 			vorpal.log("Tunnel ready!");
 			writeURLToClipboard(false);
 		});
