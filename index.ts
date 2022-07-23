@@ -103,6 +103,7 @@ vorpal
 					tunnel_url = await ngrok.connect({
 						authtoken: process.env.NGROK_AUTH,
 						port: 3002,
+						subdomain: "antilog"
 					});
 					writeURLToClipboard(false);
 				}, 200);
@@ -112,6 +113,7 @@ vorpal
 			tunnel_url = await ngrok.connect({
 				authtoken: process.env.NGROK_AUTH,
 				port: 3002,
+				subdomain: "antilog"
 			});
 			vorpal.log("Tunnel ready!");
 			writeURLToClipboard(false);
