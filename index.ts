@@ -8,9 +8,10 @@ import ngrok from "ngrok";
 import os from "os";
 import _vorpal from "vorpal";
 import process from "process";
-import denv from "dotenv"; denv.config();
+import denv from "dotenv";
+denv.config();
 if (process.env.NGROK_AUTH == undefined) {
-	console.log('No ngrok auth key!')
+	console.log("No ngrok auth key!");
 	process.exit(1);
 }
 const vorpal: any = new _vorpal();
@@ -99,13 +100,19 @@ vorpal
 				setTimeout(async () => {
 					if (typeof tunnel_url !== "undefined") ngrok.disconnect(tunnel_url);
 					first = true;
-					tunnel_url = await ngrok.connect({ auth: process.env.NGROK_AUTH, port: 3002 });
+					tunnel_url = await ngrok.connect({
+						auth: process.env.NGROK_AUTH,
+						port: 3002,
+					});
 					writeURLToClipboard(false);
 				}, 200);
 			}
 		});
 		_app = app!.listen(3002, async () => {
-			tunnel_url = await ngrok.connect({ auth: process.env.NGROK_AUTH, port: 3002 });
+			tunnel_url = await ngrok.connect({
+				auth: process.env.NGROK_AUTH,
+				port: 3002,
+			});
 			vorpal.log("Tunnel ready!");
 			writeURLToClipboard(false);
 		});

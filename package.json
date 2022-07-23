@@ -27,6 +27,7 @@
 		"gulp-typescript": "^6.0.0-alpha.1",
 		"gulp-uglify": "^3.0.2",
 		"localtunnel": "^2.0.2",
+		"ngrok": "^4.3.1",
 		"uuid": "^8.3.2",
 		"vorpal": "^1.12.0"
 	},
