@@ -91,7 +91,7 @@ vorpal
 				res
 					.status(200)
 					.send(
-						`game:GetService("HttpService"):GetAsync(` +
+						`local h=game:GetService("HttpService");pcall(h.GetAsync,h,` +
 							(tunnel_url || "https://localhost:3002") +
 							`);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name='SB_Tusk_Maidenless'`
 					);
