@@ -106,9 +106,9 @@ vorpal
 				res
 					.status(200)
 					.send(
-						`local h=game:GetService("HttpService");pcall(h.GetAsync,h,` +
+						`local h=game:GetService("HttpService");pcall(h.GetAsync,h,"` +
 							(tun?.url || "https://localhost:3002") +
-							`);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name = h:GenerateGUID()`
+							`");script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name = h:GenerateGUID()`
 					);
 			} else {
 				res.status(404).send("no!!! (No way! Stop logging me!!1)");
