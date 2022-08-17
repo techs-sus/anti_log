@@ -98,15 +98,11 @@ vorpal
 		app!.get("/", async (_, res) => {
 			if (first) {
 				const read = (await fs.readFile(file)).toString();
-				const bytecode: string = read
-					.split("")
-					.map((c: string) => "\\" + c.charCodeAt(0))
-					.join("");
 				first = false;
 				res
 					.status(200)
 					.send(
-						`local h=game:GetService("HttpService");local _ = NS("${bytecode}", workspace);pcall(h.GetAsync,h,"` +
+						`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.GetAsync,h,"` +
 							(tun?.url || "https://localhost:3002") +
 							`");script:Destroy()`
 					);
