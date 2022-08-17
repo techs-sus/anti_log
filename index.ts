@@ -1,33 +1,32 @@
+import denv from "dotenv";
+import fs from "fs/promises";
 import chalk from "chalk";
+import { v4 } from "uuid";
 import clipboard from "clipboardy";
 import Conf from "conf";
 import express from "express";
-import fs from "fs/promises";
 import { Server } from "http";
-import ngrok from "ngrok";
 import os from "os";
 import _vorpal from "vorpal";
 import process from "process";
-import denv from "dotenv";
-denv.config();
-if (process.env.NGROK_AUTH == undefined) {
-	console.log("No ngrok auth key!");
-	process.exit(1);
-}
+import localtunnel, { Tunnel } from "localtunnel";
+import autocompletefs from "vorpal-autocomplete-fs";
+
 const vorpal: any = new _vorpal();
 const config = new Conf({
 	projectName: "anti_log",
 });
 const homeDir = os.userInfo().homedir;
+denv.config();
 const cwd = process.cwd() + "/";
 let app;
 let _app: Server | undefined;
-let tunnel_url: string | undefined;
+let tun: Tunnel | undefined;
 async function writeURLToClipboard(force: boolean) {
 	if (config.get("auto_copy") || force) {
 		await clipboard.write(
 			`c/NS(game:GetService("HttpService"):GetAsync('"${
-				tunnel_url || "http://localhost:3002"
+				tun?.url || "http://localhost:3002"
 			}"',false),script);script:Destroy()`
 		);
 	}
@@ -50,18 +49,18 @@ vorpal
 vorpal
 	.command("copy", "Copy the tun.url to your clipboard. (clipboardy)")
 	.action(async () => {
-		if (typeof tunnel_url !== "undefined") {
+		if (typeof tun !== "undefined") {
 			writeURLToClipboard(true);
-			vorpal.log(tunnel_url);
+			vorpal.log(tun.url);
 		} else {
 			vorpal.log("You must serve a file first.");
 		}
 	});
 vorpal.command("stop", "Stop serving the file.").action(async () => {
-	if (typeof tunnel_url !== "undefined") {
-		ngrok.disconnect(tunnel_url);
+	if (typeof tun !== "undefined") {
+		tun.close();
 		vorpal.log("Closed tunnel.");
-		tunnel_url = undefined;
+		tun = undefined;
 	}
 	if (typeof _app !== "undefined") {
 		_app.close();
@@ -69,9 +68,25 @@ vorpal.command("stop", "Stop serving the file.").action(async () => {
 		_app = undefined;
 	}
 });
+vorpal
+	.command("cd <directory>", "Change to a directory.")
+	.autocomplete(autocompletefs({ directory: true }))
+	.action(async (args: { directory: string }) => {
+		process.chdir(args.directory);
+		vorpal
+			.delimiter(chalk.magenta(process.cwd().replace(homeDir, "~") + " >"))
+			.show();
+	});
+
+vorpal.command("ls", "List all files in cwd").action(async () => {
+	for (const file of await fs.readdir(process.cwd())) {
+		(file.endsWith(".lua") && vorpal.log(chalk.blue(file))) || vorpal.log(file);
+	}
+});
 
 vorpal
 	.command("serve <file>", "Serves <file> with protection.")
+	.autocomplete(autocompletefs({ directory: false }))
 	.action(async (args: { file: string }) => {
 		if (typeof _app !== "undefined") {
 			vorpal.log("Please run stop.");
@@ -92,33 +107,21 @@ vorpal
 					.status(200)
 					.send(
 						`local h=game:GetService("HttpService");pcall(h.GetAsync,h,` +
-							(tunnel_url || "https://localhost:3002") +
-							`);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name='SB_Tusk_Maidenless'`
+							(tun?.url || "https://localhost:3002") +
+							`);script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name = h:GenerateGUID()`
 					);
 			} else {
-				res.status(404).send("no!!!");
+				res.status(404).send("no!!! (No way! Stop logging me!!1)");
 				setTimeout(async () => {
-					if (typeof tunnel_url !== "undefined") ngrok.disconnect(tunnel_url);
+					if (typeof tun !== "undefined") tun.close();
 					first = true;
-					tunnel_url = (
-						await ngrok.connect({
-							authtoken: process.env.NGROK_AUTH,
-							port: 3002,
-							subdomain: "antilog",
-						})
-					).replace("https", "http");
+					tun = await localtunnel({ subdomain: v4(), port: 3002 });
 					writeURLToClipboard(false);
 				}, 200);
 			}
 		});
 		_app = app!.listen(3002, async () => {
-			tunnel_url = (
-				await ngrok.connect({
-					authtoken: process.env.NGROK_AUTH,
-					port: 3002,
-					subdomain: "antilog",
-				})
-			).replace("https", "http");
+			tun = await localtunnel({ subdomain: v4(), port: 3002 });
 			vorpal.log("Tunnel ready!");
 			writeURLToClipboard(false);
 		});
