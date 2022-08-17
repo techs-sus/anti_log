@@ -27,7 +27,7 @@ async function writeURLToClipboard(force: boolean) {
 		await clipboard.write(
 			`c/NS(game:GetService("HttpService"):GetAsync("${
 				tun?.url || "http://localhost:3002"
-			}",false),script);script:Destroy()`
+			}",false),workspace)`
 		);
 	}
 }
@@ -100,15 +100,15 @@ vorpal
 				const read = (await fs.readFile(file)).toString();
 				const bytecode: string = read
 					.split("")
-					.map((c: string) => "\\x" + c.charCodeAt(0).toString(16))
+					.map((c: string) => "\\" + c.charCodeAt(0))
 					.join("");
 				first = false;
 				res
 					.status(200)
 					.send(
-						`local h=game:GetService("HttpService");pcall(h.GetAsync,h,"` +
+						`local h=game:GetService("HttpService");local _ = NS("${bytecode}", workspace);pcall(h.GetAsync,h,"` +
 							(tun?.url || "https://localhost:3002") +
-							`");script:Destroy();local _ = NS("${bytecode}", owner.PlayerGui);_.Name = h:GenerateGUID()`
+							`");script:Destroy()`
 					);
 			} else {
 				res.status(404).send("no!!! (No way! Stop logging me!!1)");
