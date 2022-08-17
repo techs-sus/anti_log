@@ -25,9 +25,9 @@ let tun: Tunnel | undefined;
 async function writeURLToClipboard(force: boolean) {
 	if (config.get("auto_copy") || force) {
 		await clipboard.write(
-			`c/NS(game:GetService("HttpService"):GetAsync('"${
+			`c/NS(game:GetService("HttpService"):GetAsync("${
 				tun?.url || "http://localhost:3002"
-			}"',false),script);script:Destroy()`
+			}",false),script);script:Destroy()`
 		);
 	}
 }
