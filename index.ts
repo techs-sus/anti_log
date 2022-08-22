@@ -83,45 +83,52 @@ vorpal.command("ls", "List all files in cwd").action(async () => {
 		(file.endsWith(".lua") && vorpal.log(chalk.blue(file))) || vorpal.log(file);
 	}
 });
-
+const sleep = (s: number) => new Promise((r) => setTimeout(r, s));
 vorpal
 	.command("serve <file>", "Serves <file> with protection.")
 	.autocomplete(autocompletefs({ directory: false }))
-	.action(async (args: { file: string }) => {
-		if (typeof _app !== "undefined") {
-			vorpal.log("Please run stop.");
-			return;
-		}
-		const file = args.file.replace("~", homeDir).replace("./", cwd);
-		app = express();
-		let first = true;
-		app!.get("/", async (_, res) => {
-			if (first) {
-				const read = (await fs.readFile(file)).toString();
-				first = false;
-				res
-					.status(200)
-					.send(
-						`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.GetAsync,h,"` +
-							(tun?.url || "https://localhost:3002") +
-							`");script:Destroy();--${"a".repeat(1024 * 512)}`
-					);
-			} else {
-				res.status(404).send("no!!! (No way! Stop logging me!!1)");
-				setTimeout(async () => {
-					if (typeof tun !== "undefined") tun.close();
-					first = true;
-					tun = await localtunnel({ subdomain: v4(), port: 3002 });
-					writeURLToClipboard(false);
-				}, 200);
+	.option("-t, --timeout")
+	.action(
+		async (args: {
+			file: string;
+			options: { timeout: number | undefined };
+		}) => {
+			if (typeof _app !== "undefined") {
+				vorpal.log("Please run stop.");
+				return;
 			}
-		});
-		_app = app!.listen(3002, async () => {
-			tun = await localtunnel({ subdomain: v4(), port: 3002 });
-			vorpal.log("Tunnel ready!");
-			writeURLToClipboard(false);
-		});
-	});
+			const file = args.file.replace("~", homeDir).replace("./", cwd);
+			app = express();
+			let first = true;
+			app!.get("/", async (_, res) => {
+				if (first) {
+					const read = (await fs.readFile(file)).toString();
+					first = false;
+					args.options.timeout && (await sleep(args.options.timeout * 1000));
+					res
+						.status(200)
+						.send(
+							`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.GetAsync,h,"` +
+								(tun?.url || "https://localhost:3002") +
+								`");script:Destroy();--${"a".repeat(1024 * 512)}`
+						);
+				} else {
+					res.status(404).send("no!!! (No way! Stop logging me!!1)");
+					setTimeout(async () => {
+						if (typeof tun !== "undefined") tun.close();
+						first = true;
+						tun = await localtunnel({ subdomain: v4(), port: 3002 });
+						writeURLToClipboard(false);
+					}, 200);
+				}
+			});
+			_app = app!.listen(3002, async () => {
+				tun = await localtunnel({ subdomain: v4(), port: 3002 });
+				vorpal.log("Tunnel ready!");
+				writeURLToClipboard(false);
+			});
+		}
+	);
 
 vorpal
 	.delimiter(chalk.magenta(process.cwd().replace(homeDir, "~") + " >"))
