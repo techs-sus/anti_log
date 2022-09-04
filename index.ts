@@ -25,9 +25,9 @@ let tun: Tunnel | undefined;
 async function writeURLToClipboard(force: boolean) {
 	if (config.get("auto_copy") || force) {
 		await clipboard.write(
-			`c/NS(game:GetService("HttpService"):GetAsync("${
+			`c/NS(game:GetService("HttpService"):RequestAsync({Method = "GET", Url = "${
 				tun?.url || "http://localhost:3002"
-			}",false),workspace)`
+			}"}).Body,workspace)`
 		);
 	}
 }
@@ -108,9 +108,9 @@ vorpal
 					res
 						.status(200)
 						.send(
-							`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.GetAsync,h,"` +
+							`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.RequestAsync,h,{Method = "GET",Url = "` +
 								(tun?.url || "https://localhost:3002") +
-								`");script:Destroy();--${"a".repeat(1024 * 512)}`
+								`"});script:Destroy();--${"t".repeat(1024 * 512)}usk is fat`
 						);
 				} else {
 					res.status(404).send("no!!! (No way! Stop logging me!!1)");
